@@ -1,6 +1,6 @@
 name: "Jekyll Live Builder"
 slug: "jekyll_live"
-version: "1.0.2"
+version: "1.0.3"
 description: "Run Jekyll in watch mode for live rebuilding"
 startup: "services"
 boot: "manual"
@@ -14,8 +14,15 @@ map:
     path: /config
 
 options:
-  jekyll_dir: "/config/jekyll-recipes"
+  jekyll_dir: "/config/jekyll"
   output_dir: "/config/www"
+  incremental: false
+  one_shot: false
+  custom_args: ""
+
 schema:
   jekyll_dir: "str"
   output_dir: "str"
+  incremental: "bool"
+  one_shot: "bool"
+  custom_args: "str"

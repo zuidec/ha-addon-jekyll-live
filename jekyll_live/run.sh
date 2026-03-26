@@ -4,51 +4,65 @@ set -e
 CONFIG_PATH="/data/options.json"
 
 # Default values if options.json is missing or incomplete
-JEKYLL_DIR="/config/jekyll-recipes"
+JEKYLL_DIR="/config/jekyll"
 OUTPUT_DIR="/config/www"
+INCREMENTAL="false"
+ONE_SHOT="false"
+CUSTOM_ARGS=""
 
 if [ -f "$CONFIG_PATH" ]; then
-  JEKYLL_DIR="$(ruby -rjson -e '
-    data = JSON.parse(File.read(ARGV[0]))
-    puts(data["jekyll_dir"] || ARGV[1])
-  ' "$CONFIG_PATH" "$JEKYLL_DIR")"
+  eval "$(
+    ruby -rjson -e '
+      data = JSON.parse(File.read(ARGV[0]))
 
-  OUTPUT_DIR="$(ruby -rjson -e '
-    data = JSON.parse(File.read(ARGV[0]))
-    puts(data["output_dir"] || ARGV[1])
-  ' "$CONFIG_PATH" "$OUTPUT_DIR")"
+      def shell_escape(value)
+        "'"'"'" + value.to_s.gsub("'"'"'", %q('"'"'"'"'"'"'"'"')) + "'"'"'"
+      end
+
+      puts "JEKYLL_DIR=#{shell_escape(data["jekyll_dir"] || ARGV[1])}"
+      puts "OUTPUT_DIR=#{shell_escape(data["output_dir"] || ARGV[2])}"
+      puts "INCREMENTAL=#{shell_escape(data.key?("incremental") ? data["incremental"] : false)}"
+      puts "ONE_SHOT=#{shell_escape(data.key?("one_shot") ? data["one_shot"] : false)}"
+      puts "CUSTOM_ARGS=#{shell_escape(data["custom_args"] || "")}"
+    ' "$CONFIG_PATH" "$JEKYLL_DIR" "$OUTPUT_DIR"
+  )"
 fi
 
 echo "Using Jekyll source: $JEKYLL_DIR"
 echo "Using output directory: $OUTPUT_DIR"
+echo "Incremental: $INCREMENTAL"
+echo "One-shot: $ONE_SHOT"
+echo "Custom args: $CUSTOM_ARGS"
 
 if [ ! -d "$JEKYLL_DIR" ]; then
   echo "Error: Jekyll source directory does not exist: $JEKYLL_DIR" >&2
   exit 1
 fi
 
+mkdir -p "$OUTPUT_DIR"
 cd "$JEKYLL_DIR"
-
-echo "Updating bundle..."
-
-bundle config set path vendor/bundle
-bundle install
-
-echo "Starting Jekyll in watch mode..."
 
 if [ -f "Gemfile" ]; then
   bundle config set path vendor/bundle
   bundle install
-  exec bundle exec jekyll build \
-    --source "${JEKYLL_DIR}" \
-    --destination "${OUTPUT_DIR}" \
-    --watch \
-    --force_polling
+  JEKYLL_CMD="bundle exec jekyll build"
 else
-  bashio::log.warning "No Gemfile found in ${JEKYLL_DIR}; using system Jekyll"
-  exec jekyll build \
-    --source "${JEKYLL_DIR}" \
-    --destination "${OUTPUT_DIR}" \
-    --watch \
-    --force_polling
+  JEKYLL_CMD="jekyll build"
 fi
+
+BASE_ARGS="--source \"$JEKYLL_DIR\" --destination \"$OUTPUT_DIR\""
+
+if [ "$INCREMENTAL" = "true" ]; then
+  BASE_ARGS="$BASE_ARGS --incremental"
+fi
+
+if [ "$ONE_SHOT" = "true" ]; then
+  EXTRA_ARGS=""
+else
+  EXTRA_ARGS="--watch --force_polling"
+fi
+
+CMD="$JEKYLL_CMD $BASE_ARGS $EXTRA_ARGS $CUSTOM_ARGS"
+
+echo "Running: $CMD"
+exec sh -c "$CMD"
