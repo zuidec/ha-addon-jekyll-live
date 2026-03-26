@@ -1,6 +1,6 @@
 name: "Jekyll Live Builder"
 slug: "jekyll_live"
-version: "1.0.0"
+version: "1.0.1"
 description: "Run Jekyll in watch mode for live rebuilding"
 startup: "services"
 boot: "manual"
