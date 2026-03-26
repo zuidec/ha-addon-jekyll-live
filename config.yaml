@@ -1,0 +1,21 @@
+name: "Jekyll Live Builder"
+slug: "jekyll_live"
+version: "1.0.0"
+description: "Run Jekyll in watch mode for live rebuilding"
+startup: "services"
+boot: "manual"
+arch:
+  - amd64
+init: false
+
+map:
+  - type: homeassistant_config
+    read_only: false
+    path: /config
+
+options:
+  jekyll_dir: "/config/jekyll-recipes"
+  output_dir: "/config/www"
+schema:
+  jekyll_dir: "str"
+  output_dir: "str"
