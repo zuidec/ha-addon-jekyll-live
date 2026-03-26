@@ -1,7 +1,7 @@
 name: "Jekyll Live Builder"
 slug: "jekyll_live"
-version: "1.0.3"
-description: "Run Jekyll in watch mode for live rebuilding"
+version: "1.0.4"
+description: "Run Jekyll locally for static-site building to serve on your Home Assistant instance"
 startup: "services"
 boot: "manual"
 arch:
