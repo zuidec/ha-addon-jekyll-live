@@ -5,7 +5,7 @@ import re
 import subprocess
 
 CONFIG_PATH = Path("jekyll_live/config.yaml")
-CHANGELOG_PATH = Path("CHANGELOG.md")
+CHANGELOG_PATH = Path("jekyll_live/CHANGELOG.md")
 
 
 def run_git(args: list[str], check: bool = True) -> str:

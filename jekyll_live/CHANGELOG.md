@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.7
+
+- Fix changelog updater
+
 ## 1.0.6
 
 - Add changelog and git hook
