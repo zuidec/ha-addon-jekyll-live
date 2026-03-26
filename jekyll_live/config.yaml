@@ -1,6 +1,6 @@
 name: "Jekyll Live Builder"
 slug: "jekyll_live"
-version: "1.0.5"
+version: "1.0.6"
 description: "Run Jekyll locally for static-site building to serve on your Home Assistant instance"
 startup: "services"
 boot: "manual"
